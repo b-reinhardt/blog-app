@@ -1,14 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import { Context as BlogContext } from "../context/BlogContext";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import { Feather } from "@expo/vector-icons";
 
 const IndexScreen = ({ navigation }) => {
-  const { state, addBlogPost, deleteBlogPost } = useContext(BlogContext);
+  const { state, deleteBlogPost, getBlogPosts } = useContext(BlogContext);
+
+  useEffect(() => {
+    getBlogPosts();
+    navigation.addListener("didFocus", () => {
+      getBlogPosts();
+    });
+  }, []);
+
   return (
     <View>
-      <Button title="Add Post" onPress={addBlogPost} />
       <FlatList
         data={state}
         keyExtractor={blogPost => blogPost.title}
@@ -31,6 +38,16 @@ const IndexScreen = ({ navigation }) => {
       />
     </View>
   );
+};
+
+IndexScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity onPress={() => navigation.navigate("Create")}>
+        <Feather name="plus" size={30} marginRight={10} />
+      </TouchableOpacity>
+    )
+  };
 };
 
 const styles = StyleSheet.create({
